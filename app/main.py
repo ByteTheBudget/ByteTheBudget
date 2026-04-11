@@ -11,12 +11,10 @@ from contextlib import asynccontextmanager
 async def lifespan(app: FastAPI):
     from app.database import create_db_and_tables, get_cli_session
     from app.models.user import User
+    from app.utilities.security import encrypt_password
     from sqlmodel import select
-    from pwdlib import PasswordHash
 
     create_db_and_tables()
-
-    pwd_context = PasswordHash.recommended()
 
     admin_accounts = [
         {"username": "bob", "password": "bobpass", "email": "bob@bytethebyte.com"},
@@ -33,12 +31,11 @@ async def lifespan(app: FastAPI):
                 user = User(
                     username=account["username"],
                     email=account["email"],
-                    password=pwd_context.hash(account["password"]),
+                    password=encrypt_password(account["password"]),
                     role="admin"
                 )
                 session.add(user)
         session.commit()
-
     yield
 
 
