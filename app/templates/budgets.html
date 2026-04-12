@@ -1,0 +1,128 @@
+{% extends "authenticated-base.html" %}
+{% block title %}Budgets — Byte The Budget{% endblock %}
+
+{% block subpage_content %}
+<div class="d-flex justify-content-between align-items-center mb-1">
+    <div>
+        <div class="page-title">My Budgets</div>
+        <div class="page-subtitle">Spending limits per category — progress updates automatically from expenses</div>
+    </div>
+    <button class="btn btn-accent" data-bs-toggle="modal" data-bs-target="#addBudgetModal">
+        <span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle">add</span>
+        Add Budget
+    </button>
+</div>
+
+<div class="row g-3 mb-4">
+    {% for item in budget_progress %}
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span style="font-weight:600;font-size:0.95rem">{{ item.budget.category_id }}</span>
+                    <span class="badge {% if item.percentage >= 100 %}bg-danger{% elif item.percentage >= 80 %}bg-warning text-dark{% else %}bg-success{% endif %}">
+                        {{ "%.0f"|format(item.percentage) }}% used
+                    </span>
+                </div>
+                <div class="progress mb-2">
+                    <div class="progress-bar {% if item.percentage >= 100 %}bg-danger{% elif item.percentage >= 80 %}bg-warning{% else %}bg-success{% endif %}"
+                        style="width:{{ [item.percentage,100]|min }}%">
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between mb-3" style="font-size:0.8rem;color:var(--text-muted)">
+                    <span>${{ "%.2f"|format(item.spent) }} spent</span>
+                    <span>${{ "%.2f"|format(item.budget.limit) }} limit</span>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-secondary"
+                        onclick="openEditBudget({{ item.budget.id }}, {{ item.budget.limit }})">
+                        Edit Limit
+                    </button>
+                    <form method="POST" action="/app/budgets/{{ item.budget.id }}/delete"
+                        style="display:inline" onsubmit="return confirm('Remove this budget?')">
+                        <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body text-center" style="color:var(--text-muted)">
+                No budgets set yet — add one to start tracking your spending limits
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Add Budget Modal -->
+<div class="modal fade" id="addBudgetModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content" style="background:var(--card-bg);border:1px solid var(--card-border)">
+            <div class="modal-header" style="border-color:var(--card-border)">
+                <h5 class="modal-title" style="color:#fff">Set a New Budget</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="/app/budgets">
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label">Category *</label>
+                            <select class="form-select" name="category_id" required>
+                                <option value="">Select category</option>
+                                {% for cat in categories %}
+                                <option value="{{ cat.id }}">{{ cat.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Monthly Limit (TTD) *</label>
+                            <input type="number" step="0.01" class="form-control" name="limit"
+                                placeholder="e.g. 200.00" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-color:var(--card-border)">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-accent">Save Budget</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Budget Modal -->
+<div class="modal fade" id="editBudgetModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content" style="background:var(--card-bg);border:1px solid var(--card-border)">
+            <div class="modal-header" style="border-color:var(--card-border)">
+                <h5 class="modal-title" style="color:#fff">Edit Budget Limit</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" id="editBudgetForm">
+                <div class="modal-body">
+                    <label class="form-label">New Monthly Limit (TTD) *</label>
+                    <input type="number" step="0.01" class="form-control" name="limit"
+                        id="editBudgetLimit" required>
+                </div>
+                <div class="modal-footer" style="border-color:var(--card-border)">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-accent">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block subpage_scripts %}
+<script>
+    function openEditBudget(id, limit) {
+        document.getElementById('editBudgetForm').action = `/app/budgets/${id}/edit`;
+        document.getElementById('editBudgetLimit').value = limit;
+        new bootstrap.Modal(document.getElementById('editBudgetModal')).show();
+    }
+</script>
+{% endblock %}

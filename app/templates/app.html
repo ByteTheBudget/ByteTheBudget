@@ -21,7 +21,7 @@
     <div class="col-6 col-lg-3">
         <div class="stat-card">
             <div class="stat-label">Total Income</div>
-            <div class="stat-value" style="color:#3C6E71">${{ "%.2f"|format(total_income) }}</div>
+            <div class="stat-value" style="color:#30be8c">${{ "%.2f"|format(total_income) }}</div>
             <div class="stat-sub">This month</div>
         </div>
     </div>
@@ -35,14 +35,14 @@
     <div class="col-6 col-lg-3">
         <div class="stat-card">
             <div class="stat-label">Subscriptions</div>
-            <div class="stat-value" style="color:#ffc107">${{ "%.2f"|format(total_subscriptions) }}</div>
+            <div class="stat-value" style="color:#ffc310">${{ "%.2f"|format(total_subscriptions) }}</div>
             <div class="stat-sub">Monthly total</div>
         </div>
     </div>
     <div class="col-6 col-lg-3">
         <div class="stat-card">
             <div class="stat-label">Remaining Budget</div>
-            <div class="stat-value" style="color:{{ '#3C6E71' if remaining >= 0 else '#dc3545' }}">
+            <div class="stat-value" style="color: {{ '#5fdaed' if remaining >= 0 else '#dc3545' }}">
                 ${{ "%.2f"|format(remaining) }}
             </div>
             <div class="stat-sub">Income − expenses − subs</div>

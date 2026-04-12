@@ -1,0 +1,102 @@
+{% extends "authenticated-base.html" %}
+{% block title %}Settings — Byte The Budget{% endblock %}
+
+{% block subpage_content %}
+<div class="page-title">Settings / Profile</div>
+<div class="page-subtitle">Manage your account details</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card mb-4">
+            <div class="card-header">Profile</div>
+            <div class="card-body">
+                <div class="d-flex align-items-center gap-3 mb-4">
+                    <div style="width:52px;height:52px;border-radius:50%;background:#3C6E71;
+                        display:flex;align-items:center;justify-content:center;
+                        font-size:1.1rem;font-weight:700;color:#fff;flex-shrink:0">
+                        {{ user.username[0]|upper }}{{ user.username[1]|upper if user.username|length > 1 else '' }}
+                    </div>
+                    <div>
+                        <div style="font-weight:600">{{ user.username }}</div>
+                        <div style="color:var(--text-muted);font-size:0.875rem">{{ user.email }}</div>
+                    </div>
+                </div>
+                <form method="POST" action="/app/settings/profile">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Username</label>
+                            <input type="text" class="form-control" name="username"
+                                value="{{ user.username }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" class="form-control" name="email"
+                                value="{{ user.email }}" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-accent mt-3">Update Profile</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">Change Password</div>
+            <div class="card-body">
+                <form method="POST" action="/app/settings/password">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Current Password</label>
+                            <input type="password" class="form-control" name="current_password" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">New Password</label>
+                            <input type="password" class="form-control" name="new_password" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Confirm New Password</label>
+                            <input type="password" class="form-control" name="confirm_password" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-accent mt-3">Update Password</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card" style="border-color:#dc3545">
+            <div class="card-header" style="color:#dc3545;border-color:#dc3545">Danger Zone</div>
+            <div class="card-body">
+                <p style="color:var(--text-muted);font-size:0.875rem;margin-bottom:1rem">
+                    Permanently deletes your account and all financial data. This cannot be undone.
+                </p>
+                <button type="button" class="btn btn-outline-danger btn-sm"
+                    data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                    Delete My Account
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteAccountModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content" style="background:var(--card-bg);border:1px solid #dc3545">
+            <div class="modal-header" style="border-color:#dc3545">
+                <h5 class="modal-title" style="color:#dc3545">Delete Account</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p style="color:var(--text-secondary)">
+                    Are you absolutely sure? This will permanently delete your account and all your
+                    financial data. <strong style="color:#dc3545">This cannot be undone.</strong>
+                </p>
+            </div>
+            <div class="modal-footer" style="border-color:#444">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="POST" action="/app/settings/delete-account" style="display:inline">
+                    <button type="submit" class="btn btn-danger">Yes, Delete My Account</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

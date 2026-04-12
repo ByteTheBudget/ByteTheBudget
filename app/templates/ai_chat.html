@@ -1,0 +1,167 @@
+{% extends "authenticated-base.html" %}
+{% block title %}AI Finance Helper — Byte The Budget{% endblock %}
+
+{% block additional_styles %}
+<style>
+    .chat-container {
+        height: 420px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        padding: 1rem;
+    }
+
+    .chat-bubble {
+        max-width: 75%;
+        padding: 0.6rem 0.9rem;
+        border-radius: 0.6rem;
+        font-size: 0.875rem;
+        line-height: 1.5;
+    }
+
+    .chat-bubble.ai {
+        background-color: #242424;
+        border: 1px solid #444;
+        color: var(--text-primary);
+        align-self: flex-start;
+    }
+
+    .chat-bubble.user {
+        background-color: var(--accent);
+        color: #fff;
+        align-self: flex-end;
+    }
+
+    .chat-sender {
+        font-size: 0.7rem;
+        font-weight: 600;
+        margin-bottom: 0.2rem;
+        color: var(--text-muted);
+    }
+
+    .suggestion-btn {
+        background-color: var(--card-bg);
+        border: 1px solid #444;
+        color: var(--text-secondary);
+        font-size: 0.8rem;
+        padding: 0.4rem 0.75rem;
+        border-radius: 1rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .suggestion-btn:hover { border-color: var(--accent); color: #fff; }
+
+    .typing-indicator span {
+        display: inline-block;
+        width: 6px; height: 6px;
+        background-color: #aaa;
+        border-radius: 50%;
+        animation: bounce 1.2s infinite;
+        margin: 0 2px;
+    }
+
+    .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes bounce {
+        0%, 60%, 100% { transform: translateY(0); }
+        30% { transform: translateY(-6px); }
+    }
+</style>
+{% endblock %}
+
+{% block subpage_content %}
+<div class="page-title">AI Finance Helper</div>
+<div class="page-subtitle">Powered by Llama 3.2 — ask anything about your finances</div>
+
+<div class="card mb-3">
+    <div class="card-header">Chat</div>
+    <div class="chat-container" id="chatContainer">
+        <div style="display:flex;flex-direction:column;align-items:flex-start">
+            <div class="chat-sender">Byte The Budget AI</div>
+            <div class="chat-bubble ai">
+                Hi! I'm your financial assistant. I can see your current expenses, income and budgets.
+                Ask me anything about your finances!
+            </div>
+        </div>
+    </div>
+    <div class="card-body border-top" style="border-color:#444 !important">
+        <div class="d-flex flex-wrap gap-2 mb-3">
+            <button class="suggestion-btn" onclick="sendSuggestion(this)">How much have I saved this month?</button>
+            <button class="suggestion-btn" onclick="sendSuggestion(this)">Which subscription should I cancel?</button>
+            <button class="suggestion-btn" onclick="sendSuggestion(this)">Give me tips to reduce my spending</button>
+        </div>
+        <div class="d-flex gap-2">
+            <input type="text" class="form-control" id="chatInput"
+                placeholder="Ask about your finances..."
+                onkeydown="if(event.key==='Enter')sendMessage()">
+            <button class="btn btn-accent px-4" onclick="sendMessage()">Send</button>
+        </div>
+        <p style="font-size:0.7rem;color:#666;margin-top:0.5rem">
+            AI has context of your current month's expenses, income and budget data
+        </p>
+    </div>
+</div>
+{% endblock %}
+
+{% block subpage_scripts %}
+<script>
+    function appendMessage(sender, text, type) {
+        const container = document.getElementById('chatContainer');
+        const wrapper = document.createElement('div');
+        wrapper.style.display = 'flex';
+        wrapper.style.flexDirection = 'column';
+        wrapper.style.alignItems = type === 'user' ? 'flex-end' : 'flex-start';
+        wrapper.innerHTML = `
+            <div class="chat-sender">${sender}</div>
+            <div class="chat-bubble ${type}">${text}</div>`;
+        container.appendChild(wrapper);
+        container.scrollTop = container.scrollHeight;
+    }
+
+    function showTyping() {
+        const container = document.getElementById('chatContainer');
+        const el = document.createElement('div');
+        el.id = 'typingIndicator';
+        el.innerHTML = `
+            <div class="chat-sender">Byte The Budget AI</div>
+            <div class="chat-bubble ai typing-indicator">
+                <span></span><span></span><span></span>
+            </div>`;
+        container.appendChild(el);
+        container.scrollTop = container.scrollHeight;
+    }
+
+    function removeTyping() {
+        const el = document.getElementById('typingIndicator');
+        if (el) el.remove();
+    }
+
+    async function sendMessage() {
+        const input = document.getElementById('chatInput');
+        const message = input.value.trim();
+        if (!message) return;
+        input.value = '';
+        appendMessage('You', message, 'user');
+        showTyping();
+        try {
+            const form = new FormData();
+            form.append('message', message);
+            const response = await fetch('/app/ai-chat/message', { method: 'POST', body: form });
+            const data = await response.json();
+            removeTyping();
+            appendMessage('Byte The Budget AI', data.reply, 'ai');
+        } catch (e) {
+            removeTyping();
+            appendMessage('Byte The Budget AI', 'Sorry, I had trouble connecting. Please try again.', 'ai');
+        }
+    }
+
+    function sendSuggestion(btn) {
+        document.getElementById('chatInput').value = btn.textContent;
+        sendMessage();
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,159 @@
+{% extends "authenticated-base.html" %}
+{% block title %}Reports — Byte The Budget{% endblock %}
+
+{% block subpage_content %}
+<div class="d-flex justify-content-between align-items-center mb-1">
+    <div>
+        <div class="page-title">Reports and Analytics</div>
+        <div class="page-subtitle">{{ month }} — all data calculated automatically from your entries</div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header">Income vs Expenses — {{ month }}</div>
+            <div class="card-body">
+                <canvas id="incomeExpenseChart" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header">Spending by Category</div>
+            <div class="card-body d-flex align-items-center justify-content-center">
+                {% if spending_by_category %}
+                <canvas id="categoryChart" height="200"></canvas>
+                {% else %}
+                <p style="color:var(--text-muted)">No expenses logged this month</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header">Budget vs Actual Spending</div>
+            <div class="card-body">
+                {% if budget_progress %}
+                <canvas id="budgetChart" height="200"></canvas>
+                {% else %}
+                <p style="color:var(--text-muted)">No budgets set yet</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header">Upcoming Renewals — Next 30 Days</div>
+            <div class="card-body p-0">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Renewal Date</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sub in upcoming_renewals %}
+                        <tr>
+                            <td style="font-weight:500">{{ sub.name }}</td>
+                            <td style="color:var(--text-muted)">{{ sub.next_renewal }}</td>
+                            <td style="color:#dc3545;font-weight:500">${{ "%.2f"|format(sub.amount) }}/{{ sub.billing_cycle }}</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="3" class="text-center" style="color:var(--text-muted)">No upcoming renewals</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block subpage_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    new Chart(document.getElementById('incomeExpenseChart'), {
+        type: 'bar',
+        data: {
+            labels: ['Income', 'Expenses', 'Subscriptions'],
+            datasets: [{
+                data: [{{ total_income }}, {{ total_expenses }}, {{ total_subscriptions }}],
+                backgroundColor: ['rgba(60,110,113,0.7)', 'rgba(220,53,69,0.7)', 'rgba(255,193,7,0.7)'],
+                borderColor: ['#3C6E71', '#dc3545', '#ffc107'],
+                borderWidth: 1, borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { ticks: { color: '#aaa' }, grid: { color: '#333' } },
+                y: { ticks: { color: '#aaa' }, grid: { color: '#333' } }
+            }
+        }
+    });
+
+    {% if spending_by_category %}
+    const catData = {{ spending_by_category | tojson }};
+    new Chart(document.getElementById('categoryChart'), {
+        type: 'doughnut',
+        data: {
+            labels: catData.map(d => d.category),
+            datasets: [{
+                data: catData.map(d => d.amount),
+                backgroundColor: ['#3C6E71','#284B63','#ffc107','#dc3545','#28a745','#6f42c1','#fd7e14','#20c997'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { position: 'right', labels: { color: '#aaa', font: { size: 11 } } } }
+        }
+    });
+    {% endif %}
+
+    {% if budget_progress %}
+    const budgetData = {{ budget_progress | tojson }};
+    new Chart(document.getElementById('budgetChart'), {
+        type: 'bar',
+        data: {
+            labels: budgetData.map(b => b.budget.category_id),
+            datasets: [
+                {
+                    label: 'Budget',
+                    data: budgetData.map(b => b.budget.limit),
+                    backgroundColor: 'rgba(217,217,217,0.3)',
+                    borderColor: '#D9D9D9', borderWidth: 1, borderRadius: 4
+                },
+                {
+                    label: 'Spent',
+                    data: budgetData.map(b => b.spent),
+                    backgroundColor: budgetData.map(b =>
+                        b.percentage >= 100 ? 'rgba(220,53,69,0.7)' :
+                        b.percentage >= 80 ? 'rgba(255,193,7,0.7)' : 'rgba(40,167,69,0.7)'
+                    ),
+                    borderWidth: 1, borderRadius: 4
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { labels: { color: '#aaa' } } },
+            scales: {
+                x: { ticks: { color: '#aaa' }, grid: { color: '#333' } },
+                y: { ticks: { color: '#aaa' }, grid: { color: '#333' } }
+            }
+        }
+    });
+    {% endif %}
+</script>
+{% endblock %}
+
