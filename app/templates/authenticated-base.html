@@ -1,120 +1,419 @@
 {% extends "base.html" %}
 
 {% block internal_css %}
-
 <style>
+    :root {
+        --sidebar-bg: #202020;
+        --sidebar-active: #3C6E71;
+        --sidebar-hover: #284B63;
+        --accent: #3C6E71;
+        --accent-hover: #284B63;
+        --page-bg: #353535;
+        --card-bg: #2a2a2a;
+        --card-border: #444;
+        --text-primary: #ffffff;
+        --text-secondary: #D9D9D9;
+        --text-muted: #aaa;
+        --input-bg: #2f2f2f;
+        --input-border: #555;
+        --table-header: #1a1a1a;
+        --table-row: #2a2a2a;
+        --table-row-alt: #242424;
+        --table-border: #3a3a3a;
+    }
+
     body {
         overflow-x: hidden;
-        background-color: #f8f9fa;
+        background-color: var(--page-bg);
+        color: var(--text-primary);
     }
 
-    #wrapper {
-        display: flex;
-    }
+    #wrapper { display: flex; }
 
     #sidebar {
-        min-width: 250px;
-        max-width: 250px;
+        min-width: 220px;
+        max-width: 220px;
         min-height: 100vh;
+        background: var(--sidebar-bg);
         transition: all 0.3s;
-        background: #1b263b;
-        color: #fff;
+        display: flex;
+        flex-direction: column;
     }
 
-    #sidebar.collapsed {
-        margin-left: -250px;
+    #sidebar.collapsed { margin-left: -220px; }
+
+    .sidebar-brand {
+        padding: 1.25rem 1rem;
+        border-bottom: 1px solid #333;
+        text-align: center;
+    }
+
+    .sidebar-brand h5 {
+        color: #fff;
+        font-weight: 700;
+        margin: 0;
+        font-size: 1rem;
+        letter-spacing: 0.5px;
+    }
+
+    .sidebar-brand small {
+        color: var(--text-muted);
+        font-size: 0.7rem;
+    }
+
+    .sidebar-section-label {
+        font-size: 0.65rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: #666;
+        padding: 0.75rem 1rem 0.25rem;
     }
 
     #sidebar .nav-link {
-        color: #adb5bd;
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+        padding: 0.6rem 1rem;
+        border-radius: 0.4rem;
+        margin: 0.1rem 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+    }
+
+    #sidebar .nav-link:hover {
+        background-color: var(--sidebar-hover);
+        color: #fff;
+    }
+
+    #sidebar .nav-link.active {
+        background-color: var(--sidebar-active);
+        color: #fff;
         font-weight: 500;
     }
 
-    #sidebar .nav-link:hover,
-    #sidebar .nav-link.active {
-        color: #fff;
-        background-color: #415a77;
-        border-radius: 0.5rem;
+    #sidebar .nav-link.text-danger:hover {
+        background-color: rgba(220, 53, 69, 0.15);
+    }
+
+    .sidebar-admin-divider {
+        border-top: 1px solid #333;
+        margin: 0.5rem 0.5rem;
     }
 
     #content {
         width: 100%;
         padding: 1rem;
         transition: all 0.3s;
-        display: flex;
-        flex-direction: column;
-        background-color: #f8f9fa;
+        background-color: var(--page-bg);
+        min-height: 100vh;
+    }
+
+    .top-navbar {
+        background-color: var(--card-bg) !important;
+        border: 1px solid var(--card-border);
+        border-radius: 0.75rem;
+        padding: 0.6rem 1rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .page-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.25rem;
+    }
+
+    .page-subtitle {
+        font-size: 0.825rem;
+        color: var(--text-muted);
+        margin-bottom: 1rem;
     }
 
     .card {
+        background-color: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 0.75rem;
+        color: var(--text-primary);
+    }
+
+    .card-header {
+        background-color: var(--table-header);
+        border-bottom: 1px solid var(--card-border);
+        padding: 0.75rem 1rem;
+        font-weight: 600;
+        font-size: 0.9rem;
+        border-radius: 0.75rem 0.75rem 0 0 !important;
+    }
+
+    .stat-card {
+        background-color: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 0.75rem;
+        padding: 1rem 1.25rem;
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        margin-bottom: 0.25rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+
+    .stat-sub {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        margin-top: 0.15rem;
+    }
+
+    .table {
+        color: var(--text-primary);
+        margin-bottom: 0;
+    }
+
+    .table thead th {
+        background-color: var(--table-header);
+        color: var(--text-muted);
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-color: var(--table-border);
+        padding: 0.75rem 1rem;
+    }
+
+    .table tbody td {
+        border-color: var(--table-border);
+        padding: 0.75rem 1rem;
+        vertical-align: middle;
+        font-size: 0.875rem;
+        background-color: var(--table-row);
+    }
+
+    .table tbody tr:nth-child(even) td {
+        background-color: var(--table-row-alt);
+    }
+
+    .table tbody tr:hover td {
+        background-color: #2f2f2f;
+    }
+
+    .form-control, .form-select {
+        background-color: var(--input-bg);
+        border: 1px solid var(--input-border);
+        color: var(--text-primary);
+        border-radius: 0.4rem;
+        font-size: 0.875rem;
+    }
+
+    .form-control:focus, .form-select:focus {
+        background-color: var(--input-bg);
+        border-color: var(--accent);
+        color: var(--text-primary);
+        box-shadow: 0 0 0 0.2rem rgba(60, 110, 113, 0.25);
+    }
+
+    .form-control::placeholder { color: #666; }
+
+    .form-label {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        margin-bottom: 0.3rem;
+        font-weight: 500;
+    }
+
+    .btn-accent {
+        background-color: var(--accent);
+        border-color: var(--accent);
+        color: #fff;
+        font-weight: 500;
+        font-size: 0.875rem;
+    }
+
+    .btn-accent:hover {
+        background-color: var(--accent-hover);
+        border-color: var(--accent-hover);
+        color: #fff;
+    }
+
+    .btn-outline-secondary {
+        border-color: #555;
+        color: var(--text-secondary);
+    }
+
+    .btn-outline-secondary:hover {
+        background-color: #444;
+        color: #fff;
+    }
+
+    .progress {
+        background-color: #444;
+        border-radius: 0.25rem;
+        height: 8px;
+    }
+
+    .alert {
+        border-radius: 0.5rem;
+        font-size: 0.875rem;
         border: none;
-        border-radius: 1rem;
     }
 
-    .summary-card {
-        border-left: 5px solid #0d6efd;
+    .badge-role-admin {
+        background-color: rgba(60,110,113,0.2);
+        color: #3C6E71;
+        border: 1px solid #3C6E71;
+        font-size: 0.7rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
     }
 
-    .navbar {
-        border-bottom: 1px solid #dee2e6;
+    .badge-role-user {
+        background-color: rgba(217,217,217,0.1);
+        color: #D9D9D9;
+        border: 1px solid #555;
+        font-size: 0.7rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+    }
+
+    .section-divider {
+        border-color: #444;
+        margin: 1.25rem 0;
     }
 </style>
 
 {% block additional_styles %}{% endblock %}
-
 {% endblock %}
 
 
 {% block content %}
 <div id="wrapper">
 
-    <nav id="sidebar" class="p-3 d-flex flex-column vh-100">
-        <h4 class="text-white mb-4 text-center py-4">Project Template</h4>
+    <nav id="sidebar" class="p-0 vh-100 position-sticky top-0">
+        <div class="sidebar-brand">
+            <h5>Byte The Budget</h5>
+            <small>Personal Finance</small>
+        </div>
 
-        <ul class="nav nav-pills flex-column gap-2 flex-grow-1">
+        <ul class="nav flex-column flex-grow-1 py-2">
             <li class="nav-item">
-                <a class="nav-link d-flex align-items-center {{ 'active' if request.path == '/app' }}" href="/app">
-                    <span class="material-symbols-outlined me-2">people</span>
-                    Users
+                <a class="nav-link {{ 'active' if '/app' == request.path and request.path == '/app' }}"
+                    href="/app">
+                    <span class="material-symbols-outlined" style="font-size:18px">dashboard</span>
+                    Dashboard
                 </a>
             </li>
-            
-            <li class="nav-item mt-auto">
-                <a class="nav-link d-flex align-items-center text-danger" href="/logout">
-                    <span class="material-symbols-outlined me-2">logout</span>
-                    Logout
+            <li class="nav-item">
+                <a class="nav-link {{ 'active' if '/app/expenses' in request.path }}" href="/app/expenses">
+                    <span class="material-symbols-outlined" style="font-size:18px">receipt_long</span>
+                    Expenses
                 </a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link {{ 'active' if '/app/subscriptions' in request.path }}" href="/app/subscriptions">
+                    <span class="material-symbols-outlined" style="font-size:18px">autorenew</span>
+                    Subscriptions
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ 'active' if '/app/budgets' in request.path }}" href="/app/budgets">
+                    <span class="material-symbols-outlined" style="font-size:18px">account_balance_wallet</span>
+                    Budgets
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ 'active' if '/app/income' in request.path }}" href="/app/income">
+                    <span class="material-symbols-outlined" style="font-size:18px">payments</span>
+                    Income
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ 'active' if '/app/reports' in request.path }}" href="/app/reports">
+                    <span class="material-symbols-outlined" style="font-size:18px">bar_chart</span>
+                    Reports and Analytics
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ 'active' if '/app/ai-chat' in request.path }}" href="/app/ai-chat">
+                    <span class="material-symbols-outlined" style="font-size:18px">smart_toy</span>
+                    AI Finance Helper
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ 'active' if '/app/settings' in request.path }}" href="/app/settings">
+                    <span class="material-symbols-outlined" style="font-size:18px">settings</span>
+                    Settings/Profile
+                </a>
+            </li>
+
+            {% if user.role == "admin" %}
+            <hr class="sidebar-admin-divider">
+            <div class="sidebar-section-label">Admin</div>
+            <li class="nav-item">
+                <a class="nav-link {{ 'active' if '/admin/users' in request.path }}" href="/admin/users">
+                    <span class="material-symbols-outlined" style="font-size:18px">manage_accounts</span>
+                    User management
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ 'active' if '/admin/categories' in request.path }}" href="/admin/categories">
+                    <span class="material-symbols-outlined" style="font-size:18px">category</span>
+                    Categories
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ 'active' if '/admin/subscription-templates' in request.path }}"
+                    href="/admin/subscription-templates">
+                    <span class="material-symbols-outlined" style="font-size:18px">library_add</span>
+                    Sub. templates
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ 'active' if '/admin/stats' in request.path }}" href="/admin">
+                    <span class="material-symbols-outlined" style="font-size:18px">monitoring</span>
+                    Platform stats
+                </a>
+            </li>
+            {% endif %}
         </ul>
+
+        <div class="p-2 border-top" style="border-color:#333 !important">
+            <a class="nav-link text-danger d-flex align-items-center gap-2" href="/logout">
+                <span class="material-symbols-outlined" style="font-size:18px">logout</span>
+                Logout
+            </a>
+        </div>
     </nav>
 
     <div id="content">
-        <nav class="navbar navbar-expand-lg bg-white mb-4 px-3 rounded-3 shadow-sm">
-            <button class="btn btn-outline-secondary" id="menu-toggle">
-                <span class="material-symbols-outlined md-dark">menu</span>
+        <nav class="top-navbar d-flex align-items-center">
+            <button class="btn btn-outline-secondary btn-sm" id="menu-toggle">
+                <span class="material-symbols-outlined" style="font-size:18px">menu</span>
             </button>
-
             <div class="ms-auto d-flex align-items-center gap-3">
-                <span class="fw-semibold">Welcome, {{user.username}}</span>
+                {% if user.role == "admin" %}
+                <span class="badge-role-admin">Admin</span>
+                {% endif %}
+                <span style="color:var(--text-secondary);font-size:0.875rem">
+                    Welcome, <strong style="color:#fff">{{ user.username }}</strong>
+                </span>
             </div>
         </nav>
-        
-        <div class="row">
-            <div class="col-12">
-                {% for message in get_flashed_messages(request) %}
-                    <div class="alert alert-{{ message.type }}" role="alert">{{ message.message }}</div>
-                {% endfor %}
-            </div>
-        </div>
 
+        {% for message in get_flashed_messages(request) %}
+        <div class="alert alert-{{ message.type }} mb-3" role="alert">{{ message.message }}</div>
+        {% endfor %}
 
         {% block subpage_content %}{% endblock %}
-
     </div>
-
-
 </div>
-
 
 <script>
     document.getElementById("menu-toggle").addEventListener("click", function () {
@@ -123,5 +422,4 @@
 </script>
 
 {% block subpage_scripts %}{% endblock %}
-
 {% endblock %}

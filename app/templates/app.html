@@ -1,30 +1,154 @@
 {% extends "authenticated-base.html" %}
-
-{% block external_js %}
-<script src="{{ url_for('static', path='js/app.js')}}"></script>
-{% endblock %}
-
+{% block title %}Dashboard — Byte The Budget{% endblock %}
 
 {% block subpage_content %}
+<div class="page-title">Dashboard</div>
+<div class="page-subtitle">Your financial overview for {{ month }}</div>
 
-    <div class="container" id="content">
-        <div class="row">
-            <p>
-                This is table is rendered on the Client. JavaScript code requests the data from <a href="/api/users">/api/users</a> and writes it to this page.
-            </p>
-        </div>
-        <div class="row">
-            <table class="table table-striped">
-                <thead>
-                  <tr>
-                    <th>Id</th><th>Username</th>
-                  </tr>
-                </thead>
-                <tbody id="result">
-                
-                <tbody>
-            </table>
+{% if alerts %}
+<div class="alert alert-warning d-flex align-items-center gap-2 mb-3" role="alert">
+    <span class="material-symbols-outlined" style="font-size:18px">warning</span>
+    <div>
+        <strong>Budget Alert</strong>
+        {% for alert in alerts %}
+        <div>{{ alert.budget.category_id }} budget is at {{ alert.percentage }}% — ${{ "%.2f"|format(alert.spent) }} of ${{ "%.2f"|format(alert.budget.limit) }} used</div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+        <div class="stat-card">
+            <div class="stat-label">Total Income</div>
+            <div class="stat-value" style="color:#3C6E71">${{ "%.2f"|format(total_income) }}</div>
+            <div class="stat-sub">This month</div>
         </div>
     </div>
+    <div class="col-6 col-lg-3">
+        <div class="stat-card">
+            <div class="stat-label">Total Expenses</div>
+            <div class="stat-value" style="color:#dc3545">${{ "%.2f"|format(total_expenses) }}</div>
+            <div class="stat-sub">This month</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="stat-card">
+            <div class="stat-label">Subscriptions</div>
+            <div class="stat-value" style="color:#ffc107">${{ "%.2f"|format(total_subscriptions) }}</div>
+            <div class="stat-sub">Monthly total</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="stat-card">
+            <div class="stat-label">Remaining Budget</div>
+            <div class="stat-value" style="color:{{ '#3C6E71' if remaining >= 0 else '#dc3545' }}">
+                ${{ "%.2f"|format(remaining) }}
+            </div>
+            <div class="stat-sub">Income − expenses − subs</div>
+        </div>
+    </div>
+</div>
 
+<div class="row g-3 mb-4">
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header">Burn Rate — {{ month }}</div>
+            <div class="card-body">
+                <canvas id="burnRateChart" height="180"></canvas>
+                <p class="text-muted mt-2 mb-0" style="font-size:0.75rem">
+                    X-axis: days of month · Y-axis: cumulative $ spent
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header">Budget Overview</div>
+            <div class="card-body">
+                {% for item in budget_progress %}
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span style="font-size:0.875rem;font-weight:500">{{ item.budget.category_id }}</span>
+                        <span style="font-size:0.8rem;color:var(--text-muted)">
+                            ${{ "%.0f"|format(item.spent) }} / ${{ "%.0f"|format(item.budget.limit) }}
+                        </span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar
+                            {% if item.percentage >= 100 %}bg-danger
+                            {% elif item.percentage >= 80 %}bg-warning
+                            {% else %}bg-success{% endif %}"
+                            style="width: {{ [item.percentage, 100]|min }}%">
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">Recent Transactions</div>
+    <div class="table-responsive">
+        <table class="table mb-0">
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th>Category</th>
+                    <th>Date</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for expense in recent_expenses %}
+                <tr>
+                    <td>{{ expense.description }}</td>
+                    <td><span class="badge-role-user">{{ expense.category_id }}</span></td>
+                    <td style="color:var(--text-muted)">{{ expense.date }}</td>
+                    <td style="color:#dc3545;font-weight:500">-${{ "%.2f"|format(expense.amount) }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" class="text-center" style="color:var(--text-muted)">
+                        No recent transactions
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block subpage_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const burnData = {{ burn_rate | tojson }};
+    const ctx = document.getElementById('burnRateChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: burnData.map(d => 'Day ' + d.day),
+            datasets: [{
+                label: 'Daily Spending',
+                data: burnData.map(d => d.amount),
+                backgroundColor: 'rgba(60,110,113,0.5)',
+                borderColor: '#3C6E71',
+                borderWidth: 1,
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { ticks: { color: '#aaa' }, grid: { color: '#333' } },
+                y: { ticks: { color: '#aaa' }, grid: { color: '#333' } }
+            }
+        }
+    });
+</script>
 {% endblock %}
