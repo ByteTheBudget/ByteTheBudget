@@ -1,101 +1,121 @@
 {% extends "base.html" %}
-{% block title %}Login{% endblock %}
-
-{% block external_js %}
-
-{% endblock %}
-
+{% block title %}Login — Byte The Budget{% endblock %}
 
 {% block internal_css %}
 <style>
-    body {
-        background-color: #f8f9fa;
-    }
+    body { background-color: #353535; }
 
-    .login-container {
+    .auth-wrapper {
         min-height: 100vh;
-    }
-
-    .login-card {
-        border: none;
-        border-radius: 1rem;
-        overflow: hidden;
-    }
-
-    .login-image {
-        background: linear-gradient(135deg, #0d6efd, #0dcaf0);
         display: flex;
         align-items: center;
         justify-content: center;
-        color: white;
-        padding: 3rem;
+        padding: 2rem;
     }
 
-    .form-section {
-        padding: 3rem;
+    .auth-card {
+        background: #2a2a2a;
+        border: 1px solid #444;
+        border-radius: 1rem;
+        width: 100%;
+        max-width: 420px;
+        padding: 2.5rem;
     }
 
-    .btn-primary {
-        border-radius: 0.5rem;
+    .auth-brand {
+        text-align: center;
+        margin-bottom: 2rem;
     }
+
+    .auth-brand h4 {
+        color: #3C6E71;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+    }
+
+    .auth-brand p {
+        color: #aaa;
+        font-size: 0.85rem;
+        margin: 0;
+    }
+
+    .form-label { color: #D9D9D9; font-size: 0.85rem; }
 
     .form-control {
-        border-radius: 0.5rem;
+        background: #2f2f2f;
+        border: 1px solid #555;
+        color: #fff;
+        border-radius: 0.4rem;
     }
+
+    .form-control:focus {
+        background: #2f2f2f;
+        border-color: #3C6E71;
+        color: #fff;
+        box-shadow: 0 0 0 0.2rem rgba(60,110,113,0.25);
+    }
+
+    .form-control::placeholder { color: #666; }
+
+    .btn-accent {
+        background: #3C6E71;
+        border-color: #3C6E71;
+        color: #fff;
+        font-weight: 500;
+        border-radius: 0.4rem;
+    }
+
+    .btn-accent:hover { background: #284B63; border-color: #284B63; color: #fff; }
+
+    .auth-divider {
+        border-color: #444;
+        margin: 1.25rem 0;
+    }
+
+    .auth-link { color: #3C6E71; text-decoration: none; font-size: 0.85rem; }
+    .auth-link:hover { color: #fff; }
 </style>
 {% endblock %}
 
-
 {% block content %}
-
-<div class="container login-container d-flex align-items-center justify-content-center">
-    <div class="card shadow-lg login-card col-lg-10">
-        <div class="row g-0">
-            <div class="col-lg-6 d-none d-lg-flex login-image">
-                <div class="text-center">
-                    <h2 class="mt-4 fw-bold">Welcome Back</h2>
-                    <p class="lead">Sign in to continue to the app</p>
-                </div>
-            </div>
-            <div class="col-lg-6 bg-white">
-                <div class="form-section">
-                    <h3 class="fw-bold mb-4">Login</h3>
-
-                    <form id="loginForm" method="POST">
-                        <div class="mb-3">
-                            <label for="username" class="form-label">Username</label>
-                            <input type="text" class="form-control form-control-md" id="username" name="username"
-                                required="required">
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Password</label>
-                            <input type="password" class="form-control form-control-md" id="password" name="password"
-                                required>
-                        </div>
-
-                        <div class="d-grid mb-3">
-                            <button type="submit" class="btn btn-primary btn-lg">
-                                Sign In
-                            </button>
-
-                    </form>
-                </div>
-
-                <div class="d-grid mb-3">
-                    <a class="btn btn-secondary btn-lg" href="{{url_for('register_view')}}" role="button">
-                        Sign Up
-                    </a>
-                </div>
-
-
-                {% for message in get_flashed_messages(request) %}
-                <div class="alert alert-{{ message.type }}" role="alert">{{ message.message }}</div>
-                {% endfor %}
-            </div>
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <div class="auth-brand">
+            <h4>Byte The Budget</h4>
+            <p>Personal Finance Tracker</p>
         </div>
 
+        <h5 style="color:#fff;font-weight:600;margin-bottom:1.5rem">Sign In</h5>
+
+        {% for message in get_flashed_messages(request) %}
+        <div class="alert alert-{{ message.type }} mb-3" role="alert"
+            style="font-size:0.85rem;border-radius:0.4rem;border:none">
+            {{ message.message }}
+        </div>
+        {% endfor %}
+
+        <form method="POST" action="/login">
+            <div class="mb-3">
+                <label class="form-label">Username</label>
+                <input type="text" class="form-control" name="username"
+                    placeholder="Enter your username" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Password</label>
+                <input type="password" class="form-control" name="password"
+                    placeholder="Enter your password" required>
+            </div>
+            <div class="d-grid mb-3">
+                <button type="submit" class="btn btn-accent btn-lg">Login</button>
+            </div>
+        </form>
+
+        <hr class="auth-divider">
+
+        <div class="text-center">
+            <span style="color:#aaa;font-size:0.85rem">Don't have an account? </span>
+            <a href="/register" class="auth-link">Register</a>
+        </div>
     </div>
-</div>
 </div>
 {% endblock %}

@@ -1,12 +1,80 @@
 {% extends "authenticated-base.html" %}
-
-{% block external_js %}
-<script src="{{ url_for('static', path='js/app.js')}}"></script>
-{% endblock %}
-
+{% block title %}Admin Dashboard — Byte The Budget{% endblock %}
 
 {% block subpage_content %}
+<div class="page-title">Admin Dashboard</div>
+<div class="page-subtitle">Platform overview — manage users, categories and subscription templates</div>
 
-   I am the admin page
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+        <div class="stat-card">
+            <div class="stat-label">Total Users</div>
+            <div class="stat-value" style="color:#3C6E71">{{ total_users or 0 }}</div>
+            <div class="stat-sub">Registered accounts</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="stat-card">
+            <div class="stat-label">Active Users</div>
+            <div class="stat-value" style="color:#28a745">{{ active_users or 0 }}</div>
+            <div class="stat-sub">Currently active</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="stat-card">
+            <div class="stat-label">Categories</div>
+            <div class="stat-value">{{ total_categories or 0 }}</div>
+            <div class="stat-sub">Default + custom</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="stat-card">
+            <div class="stat-label">Sub. Templates</div>
+            <div class="stat-value">{{ total_templates or 0 }}</div>
+            <div class="stat-sub">In library</div>
+        </div>
+    </div>
+</div>
 
+<div class="row g-3">
+    <div class="col-md-4">
+        <a href="/admin/users" class="text-decoration-none">
+            <div class="card h-100" style="cursor:pointer;transition:border-color 0.2s"
+                onmouseover="this.style.borderColor='#3C6E71'"
+                onmouseout="this.style.borderColor='#444'">
+                <div class="card-body text-center py-4">
+                    <span class="material-symbols-outlined" style="font-size:2rem;color:#3C6E71">manage_accounts</span>
+                    <div style="font-weight:600;margin-top:0.5rem;color:#fff">User Management</div>
+                    <div style="font-size:0.8rem;color:#aaa">View and manage accounts</div>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-4">
+        <a href="/admin/categories" class="text-decoration-none">
+            <div class="card h-100" style="cursor:pointer;transition:border-color 0.2s"
+                onmouseover="this.style.borderColor='#3C6E71'"
+                onmouseout="this.style.borderColor='#444'">
+                <div class="card-body text-center py-4">
+                    <span class="material-symbols-outlined" style="font-size:2rem;color:#3C6E71">category</span>
+                    <div style="font-weight:600;margin-top:0.5rem;color:#fff">Categories</div>
+                    <div style="font-size:0.8rem;color:#aaa">Manage expense categories</div>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-4">
+        <a href="/admin/subscription-templates" class="text-decoration-none">
+            <div class="card h-100" style="cursor:pointer;transition:border-color 0.2s"
+                onmouseover="this.style.borderColor='#3C6E71'"
+                onmouseout="this.style.borderColor='#444'">
+                <div class="card-body text-center py-4">
+                    <span class="material-symbols-outlined" style="font-size:2rem;color:#3C6E71">library_add</span>
+                    <div style="font-weight:600;margin-top:0.5rem;color:#fff">Subscription Templates</div>
+                    <div style="font-size:0.8rem;color:#aaa">Manage quick-add library</div>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
 {% endblock %}
