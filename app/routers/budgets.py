@@ -19,13 +19,15 @@ async def budgets_view(request: Request, user: AuthDep, db: SessionDep):
     now = datetime.now()
     budget_progress = budget_service.get_budget_progress(user.id, now.month, now.year)
     categories = category_service.get_all_categories()
+    category_map = {cat.id: cat.name for cat in categories}
     return templates.TemplateResponse(
         request=request,
         name="budgets.html",
         context={
             "user": user,
             "budget_progress": budget_progress,
-            "categories": categories
+            "categories": categories,
+            "category_map": category_map
         }
     )
 

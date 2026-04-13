@@ -11,6 +11,8 @@ from app.services.expense_service import ExpenseService
 from app.services.income_service import IncomeService
 from app.services.subscription_service import SubscriptionService
 from app.services.budget_service import BudgetService
+from app.repositories.category import CategoryRepository
+from app.services.category_service import CategoryService
 from . import router, templates
 
 
@@ -23,7 +25,10 @@ async def user_home_view(request: Request, user: AuthDep, db: SessionDep):
     income_service = IncomeService(IncomeRepository(db))
     sub_service = SubscriptionService(SubscriptionRepository(db))
     budget_service = BudgetService(BudgetRepository(db), ExpenseRepository(db))
-
+    category_service = CategoryService(CategoryRepository(db))
+    
+    categories = category_service.get_all_categories()
+    category_map = {cat.id: cat.name for cat in categories}
     total_income = income_service.get_monthly_total(user.id, month, year)
     total_expenses = expense_service.get_monthly_total(user.id, month, year)
     total_subscriptions = sub_service.get_monthly_total(user.id)
@@ -49,6 +54,7 @@ async def user_home_view(request: Request, user: AuthDep, db: SessionDep):
             "remaining": total_income - total_expenses - total_subscriptions,
             "budget_progress": budget_progress,
             "recent_expenses": recent_expenses,
+            "category_map": category_map,
             "alerts": alerts,
             "burn_rate": burn_rate,
             "month": now.strftime("%B %Y")

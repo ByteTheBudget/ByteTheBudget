@@ -11,7 +11,7 @@
     <div>
         <strong>Budget Alert</strong>
         {% for alert in alerts %}
-        <div>{{ alert.budget.category_id }} budget is at {{ alert.percentage }}% — ${{ "%.2f"|format(alert.spent) }} of ${{ "%.2f"|format(alert.budget.limit) }} used</div>
+        <div>{{ category_map.get(alert.budget.category_id, alert.budget.category_id) }} budget is at {{ alert.percentage }}% — ${{ "%.2f"|format(alert.spent) }} of ${{ "%.2f"|format(alert.budget.limit) }} used</div>
         {% endfor %}
     </div>
 </div>
@@ -57,7 +57,7 @@
             <div class="card-body">
                 <canvas id="burnRateChart" height="180"></canvas>
                 <p class="text-muted mt-2 mb-0" style="font-size:0.75rem">
-                    X-axis: days of month · Y-axis: cumulative $ spent
+                    X-axis: days of month · Y-axis: $ spent
                 </p>
             </div>
         </div>
@@ -69,7 +69,7 @@
                 {% for item in budget_progress %}
                 <div class="mb-3">
                     <div class="d-flex justify-content-between mb-1">
-                        <span style="font-size:0.875rem;font-weight:500">{{ item.budget.category_id }}</span>
+                        <span style="font-size:0.875rem;font-weight:500">{{ category_map.get(item.budget.category_id, item.budget.category_id) }}</span>
                         <span style="font-size:0.8rem;color:var(--text-muted)">
                             ${{ "%.0f"|format(item.spent) }} / ${{ "%.0f"|format(item.budget.limit) }}
                         </span>
@@ -83,6 +83,8 @@
                         </div>
                     </div>
                 </div>
+                {% else %}
+                <p style="color:var(--text-muted);font-size:0.875rem">No budgets set yet</p>
                 {% endfor %}
             </div>
         </div>
@@ -105,7 +107,7 @@
                 {% for expense in recent_expenses %}
                 <tr>
                     <td>{{ expense.description }}</td>
-                    <td><span class="badge-role-user">{{ expense.category_id }}</span></td>
+                    <td><span class="badge-role-user">{{ category_map.get(expense.category_id, expense.category_id) }}</span></td>
                     <td style="color:var(--text-muted)">{{ expense.date }}</td>
                     <td style="color:#dc3545;font-weight:500">-${{ "%.2f"|format(expense.amount) }}</td>
                 </tr>

@@ -27,7 +27,8 @@ async def subscriptions_view(request: Request, user: AuthDep, db: SessionDep):
             "subscriptions": subscriptions,
             "templates_list": templates_list,
             "monthly_total": monthly_total,
-            "upcoming": upcoming
+            "upcoming": upcoming,
+            "now": date.today().isoformat()
         }
     )
 
