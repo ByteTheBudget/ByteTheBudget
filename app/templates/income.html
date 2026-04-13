@@ -34,7 +34,7 @@
             <tbody>
                 {% for income in income_list %}
                 <tr>
-                    <td style="font-weight:500; color:#fff"">{{ income.source }}</td>
+                    <td style="font-weight:500">{{ income.source }}</td>
                     <td><span class="badge-role-user">{{ income.type }}</span></td>
                     <td style="color:#3C6E71;font-weight:500">+${{ "%.2f"|format(income.amount) }}</td>
                     <td style="color:var(--text-muted)">{{ income.date_received }}</td>

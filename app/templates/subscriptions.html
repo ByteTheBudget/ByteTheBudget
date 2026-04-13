@@ -54,7 +54,7 @@
             <tbody>
                 {% for sub in subscriptions %}
                 <tr>
-                    <td style="font-weight:500; color:#fff">{{ sub.name }}</td>
+                    <td style="font-weight:500">{{ sub.name }}</td>
                     <td style="color:var(--text-muted)">${{ "%.2f"|format(sub.amount) }}</td>
                     <td style="color:var(--text-muted)">{{ sub.billing_cycle|capitalize }}</td>
                     <td style="color:var(--text-muted)">{{ sub.next_renewal }}</td>
