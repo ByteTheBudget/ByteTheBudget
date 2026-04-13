@@ -22,10 +22,29 @@
         --table-border: #3a3a3a;
     }
 
+    body.light-mode {
+        --sidebar-bg: #1e3a3c;
+        --sidebar-active: #3C6E71;
+        --sidebar-hover: #284B63;
+        --page-bg: #f0f4f4;
+        --card-bg: #ffffff;
+        --card-border: #d0dede;
+        --text-primary: #1a1a1a;
+        --text-secondary: #333;
+        --text-muted: #666;
+        --input-bg: #ffffff;
+        --input-border: #ccc;
+        --table-header: #e8f0f0;
+        --table-row: #ffffff;
+        --table-row-alt: #f5fafa;
+        --table-border: #e0ecec;
+    }
+
     body {
         overflow-x: hidden;
         background-color: var(--page-bg);
         color: var(--text-primary);
+        transition: background-color 0.3s, color 0.3s;
     }
 
     #wrapper { display: flex; }
@@ -70,7 +89,7 @@
     }
 
     #sidebar .nav-link {
-        color: var(--text-secondary);
+        color: #D9D9D9;
         font-size: 0.875rem;
         padding: 0.6rem 1rem;
         border-radius: 0.4rem;
@@ -115,6 +134,7 @@
         border-radius: 0.75rem;
         padding: 0.6rem 1rem;
         margin-bottom: 1.25rem;
+        transition: background-color 0.3s, border-color 0.3s;
     }
 
     .page-title {
@@ -135,6 +155,7 @@
         border: 1px solid var(--card-border);
         border-radius: 0.75rem;
         color: var(--text-primary);
+        transition: background-color 0.3s, border-color 0.3s;
     }
 
     .card-header {
@@ -144,6 +165,7 @@
         font-weight: 600;
         font-size: 0.9rem;
         border-radius: 0.75rem 0.75rem 0 0 !important;
+        color: var(--text-primary);
     }
 
     .stat-card {
@@ -151,6 +173,7 @@
         border: 1px solid var(--card-border);
         border-radius: 0.75rem;
         padding: 1rem 1.25rem;
+        transition: background-color 0.3s, border-color 0.3s;
     }
 
     .stat-label {
@@ -202,8 +225,12 @@
         background-color: var(--table-row-alt);
     }
 
-    .table tbody tr:hover td {
+    body:not(.light-mode) .table tbody tr:hover td {
         background-color: #2f2f2f;
+    }
+
+    body.light-mode .table tbody tr:hover td {
+        background-color: #e8f5f5;
     }
 
     .form-control, .form-select {
@@ -212,6 +239,7 @@
         color: var(--text-primary);
         border-radius: 0.4rem;
         font-size: 0.875rem;
+        transition: background-color 0.3s, border-color 0.3s, color 0.3s;
     }
 
     .form-control:focus, .form-select:focus {
@@ -254,11 +282,23 @@
         color: #fff;
     }
 
+    body.light-mode .btn-outline-secondary {
+        border-color: #ccc;
+        color: #555;
+    }
+
+    body.light-mode .btn-outline-secondary:hover {
+        background-color: #eee;
+        color: #333;
+    }
+
     .progress {
         background-color: #444;
         border-radius: 0.25rem;
         height: 8px;
     }
+
+    body.light-mode .progress { background-color: #ddd; }
 
     .alert {
         border-radius: 0.5rem;
@@ -284,10 +324,68 @@
         border-radius: 0.25rem;
     }
 
+    body.light-mode .badge-role-user {
+        color: #333;
+        border-color: #ccc;
+        background-color: rgba(0,0,0,0.05);
+    }
+
     .section-divider {
         border-color: #444;
         margin: 1.25rem 0;
     }
+
+    body.light-mode .section-divider { border-color: #ddd; }
+
+    /* modal light mode */
+    body.light-mode .modal-content {
+        background-color: #fff !important;
+        border-color: #ccc !important;
+        color: #1a1a1a !important;
+    }
+
+    body.light-mode .modal-header,
+    body.light-mode .modal-footer {
+        border-color: #ddd !important;
+    }
+
+    body.light-mode .modal-title { color: #1a1a1a !important; }
+
+    body.light-mode .card-header { color: #1a1a1a; }
+
+    /* theme toggle button */
+    #themeToggle {
+        background: transparent;
+        border: 1px solid #444;
+        border-radius: 0.5rem;
+        padding: 0.3rem 0.65rem;
+        cursor: pointer;
+        color: #aaa;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.8rem;
+        transition: all 0.2s;
+    }
+
+    #themeToggle:hover {
+        border-color: var(--accent);
+        color: #fff;
+    }
+
+    body.light-mode #themeToggle {
+        border-color: #ccc;
+        color: #555;
+    }
+
+    body.light-mode #themeToggle:hover {
+        border-color: var(--accent);
+        color: #1a1a1a;
+    }
+
+    /* welcome text in navbar */
+    .welcome-text { color: var(--text-secondary); font-size: 0.875rem; }
+    .welcome-name { color: var(--text-primary); }
 </style>
 
 {% block additional_styles %}{% endblock %}
@@ -305,8 +403,7 @@
 
         <ul class="nav flex-column flex-grow-1 py-2">
             <li class="nav-item">
-                <a class="nav-link {{ 'active' if '/app' == request.path and request.path == '/app' }}"
-                    href="/app">
+                <a class="nav-link {{ 'active' if request.path == '/app' }}" href="/app">
                     <span class="material-symbols-outlined" style="font-size:18px">dashboard</span>
                     Dashboard
                 </a>
@@ -377,7 +474,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {{ 'active' if '/admin/stats' in request.path }}" href="/admin">
+                <a class="nav-link {{ 'active' if request.path == '/admin' }}" href="/admin">
                     <span class="material-symbols-outlined" style="font-size:18px">monitoring</span>
                     Platform stats
                 </a>
@@ -398,12 +495,19 @@
             <button class="btn btn-outline-secondary btn-sm" id="menu-toggle">
                 <span class="material-symbols-outlined" style="font-size:18px">menu</span>
             </button>
+
             <div class="ms-auto d-flex align-items-center gap-3">
+                <button id="themeToggle" onclick="toggleTheme()" title="Toggle light/dark mode">
+                    <span class="material-symbols-outlined" id="themeIcon" style="font-size:16px">light_mode</span>
+                    <span id="themeLabel">Light</span>
+                </button>
+
                 {% if user.role == "admin" %}
                 <span class="badge-role-admin">Admin</span>
                 {% endif %}
-                <span style="color:var(--text-secondary);font-size:0.875rem">
-                    Welcome, <strong style="color:#fff">{{ user.username }}</strong>
+
+                <span class="welcome-text">
+                    Welcome, <strong class="welcome-name">{{ user.username }}</strong>
                 </span>
             </div>
         </nav>
@@ -420,6 +524,24 @@
     document.getElementById("menu-toggle").addEventListener("click", function () {
         document.getElementById("sidebar").classList.toggle("collapsed");
     });
+
+    function toggleTheme() {
+        const isLight = document.body.classList.toggle('light-mode');
+        document.getElementById('themeIcon').textContent = isLight ? 'dark_mode' : 'light_mode';
+        document.getElementById('themeLabel').textContent = isLight ? 'Dark' : 'Light';
+        localStorage.setItem('theme', isLight ? 'light' : 'dark');
+    }
+
+    (function () {
+        const saved = localStorage.getItem('theme');
+        if (saved === 'light') {
+            document.body.classList.add('light-mode');
+            const icon = document.getElementById('themeIcon');
+            const label = document.getElementById('themeLabel');
+            if (icon) icon.textContent = 'dark_mode';
+            if (label) label.textContent = 'Dark';
+        }
+    })();
 </script>
 
 {% block subpage_scripts %}{% endblock %}
