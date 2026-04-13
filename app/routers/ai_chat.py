@@ -1,4 +1,4 @@
-from fastapi import Request, Form, status
+from fastapi import Request, Form
 from fastapi.responses import HTMLResponse, JSONResponse
 from app.dependencies import SessionDep
 from app.dependencies.auth import AuthDep
@@ -8,15 +8,12 @@ from app.repositories.subscription import SubscriptionRepository
 from app.services.expense_service import ExpenseService
 from app.services.income_service import IncomeService
 from app.services.subscription_service import SubscriptionService
+from app.config import get_settings
 from datetime import datetime
 import httpx
 from . import router, templates
 
-
-AI_BASE_URL = "https://ai-gen.sundaebytestt.com/v1"
-AI_MODEL = "meta/llama-3.2-3b-instruct"
-AI_API_KEY = "sk-59addf63a8bd464c92242421db666aa1"
-
+GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 
 @router.get("/app/ai-chat", response_class=HTMLResponse)
 async def ai_chat_view(request: Request, user: AuthDep, db: SessionDep):
@@ -50,15 +47,15 @@ The user's current financial summary for {now.strftime("%B %Y")}:
 - Total Expenses: ${total_expenses:.2f}
 - Total Subscriptions: ${total_subs:.2f}
 - Remaining Balance: ${remaining:.2f}
-Give short, practical financial advice. Be friendly and concise."""
+Give short, practical financial advice. Be friendly and concise. Keep responses under 3 sentences."""
 
     try:
         async with httpx.AsyncClient() as client:
             response = await client.post(
-                f"{AI_BASE_URL}/chat/completions",
-                headers={"Authorization": f"Bearer {AI_API_KEY}"},
+                GROQ_URL,
+                headers={"Authorization": f"Bearer {get_settings().groq_api_key}"},
                 json={
-                    "model": AI_MODEL,
+                    "model": "llama-3.1-8b-instant",
                     "messages": [
                         {"role": "system", "content": system_prompt},
                         {"role": "user", "content": message}

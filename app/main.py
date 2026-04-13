@@ -11,31 +11,63 @@ from contextlib import asynccontextmanager
 async def lifespan(app: FastAPI):
     from app.database import create_db_and_tables, get_cli_session
     from app.models.user import User
+    from app.models.category import Category
+    from app.models.subscription_template import SubscriptionTemplate
     from app.utilities.security import encrypt_password
     from sqlmodel import select
 
     create_db_and_tables()
 
-    admin_accounts = [
-        {"username": "bob", "password": "bobpass", "email": "bob@bytethebyte.com"},
-        # add your dev team accounts here:
-        # {"username": "yourname", "password": "yourpass", "email": "you@email.com"},
-    ]
-
     with get_cli_session() as session:
+        # seed admin accounts
+        admin_accounts = [
+            {"username": "bob", "password": "bobpass", "email": "bob@bytethebyte.com"},
+            # for the dev team if they want to add another admin account
+            # {"username": "yourname", "password": "yourpass", "email": "you@email.com"},
+        ]
         for account in admin_accounts:
             existing = session.exec(
                 select(User).where(User.username == account["username"])
             ).first()
             if not existing:
-                user = User(
+                session.add(User(
                     username=account["username"],
                     email=account["email"],
                     password=encrypt_password(account["password"]),
                     role="admin"
-                )
-                session.add(user)
+                ))
+
+        # seed default categories
+        default_categories = [
+            "Food", "Transport", "Entertainment", "Rent",
+            "Education", "Health", "Utilities", "Clothing",
+            "Savings", "Other"
+        ]
+        for name in default_categories:
+            existing = session.exec(
+                select(Category).where(Category.name == name)
+            ).first()
+            if not existing:
+                session.add(Category(name=name, is_default=True))
+
+        # seed default subscription templates
+        default_templates = [
+            {"name": "Netflix", "default_amount": 65.00, "billing_cycle": "monthly"},
+            {"name": "Spotify", "default_amount": 20.00, "billing_cycle": "monthly"},
+            {"name": "Flow WiFi", "default_amount": 200.00, "billing_cycle": "monthly"},
+            {"name": "TSTT", "default_amount": 150.00, "billing_cycle": "monthly"},
+            {"name": "Adobe CC", "default_amount": 80.00, "billing_cycle": "monthly"},
+            {"name": "YouTube Premium", "default_amount": 30.00, "billing_cycle": "monthly"},
+        ]
+        for t in default_templates:
+            existing = session.exec(
+                select(SubscriptionTemplate).where(SubscriptionTemplate.name == t["name"])
+            ).first()
+            if not existing:
+                session.add(SubscriptionTemplate(**t))
+
         session.commit()
+
     yield
 
 
