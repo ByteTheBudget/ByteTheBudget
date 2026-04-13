@@ -383,6 +383,10 @@
         color: #1a1a1a;
     }
 
+    #sidebar::-webkit-scrollbar { width: 4px; }
+    #sidebar::-webkit-scrollbar-track { background: transparent; }
+    #sidebar::-webkit-scrollbar-thumb { background: #444; border-radius: 2px; }
+
     /* welcome text in navbar */
     .welcome-text { color: var(--text-secondary); font-size: 0.875rem; }
     .welcome-name { color: var(--text-primary); }
@@ -395,7 +399,7 @@
 {% block content %}
 <div id="wrapper">
 
-    <nav id="sidebar" class="p-0 vh-100 position-sticky top-0">
+    <nav id="sidebar" class="p-0 position-sticky top-0" style="height:100vh;overflow-y:auto">
         <div class="sidebar-brand">
             <h5>Byte The Budget</h5>
             <small>Personal Finance</small>
