@@ -33,18 +33,33 @@ async def reports_view(request: Request, user: AuthDep, db: SessionDep):
     total_expenses = expense_service.get_monthly_total(user.id, month, year)
     total_income = income_service.get_monthly_total(user.id, month, year)
     total_subscriptions = sub_service.get_monthly_total(user.id)
-    budget_progress = budget_service.get_budget_progress(user.id, month, year)
     categories = category_service.get_all_categories()
     upcoming_renewals = sub_service.get_upcoming_renewals(user.id)
 
-    # spending by category for pie chart
+    raw_progress = budget_service.get_budget_progress(user.id, month, year)
+    budget_progress = [
+        {
+            "budget": {
+                "id": item["budget"].id,
+                "limit": item["budget"].limit,
+                "category_id": item["budget"].category_id,
+                "user_id": item["budget"].user_id,
+            },
+            "spent": item["spent"],
+            "remaining": item["remaining"],
+            "percentage": item["percentage"],
+            "is_over": item["is_over"],
+            "is_warning": item["is_warning"],
+        }
+        for item in raw_progress
+    ]
+
     spending_by_category = []
     for cat in categories:
         spent = expense_service.get_category_total(user.id, cat.id, month, year)
         if spent > 0:
             spending_by_category.append({"category": cat.name, "amount": spent})
 
-    # burn rate — daily spending this month grouped by day
     burn_rate_data = {}
     for expense in monthly_expenses:
         day = expense.date.day
