@@ -40,7 +40,7 @@
                 {% for expense in expenses %}
                 <tr>
                     <td>{{ expense.description }}</td>
-                    <td>{{ expense.category_id }}</td>
+                    <td>{{ category_map.get(expense.category_id, expense.category_id) }}</td>
                     <td style="color:var(--text-muted)">{{ expense.date }}</td>
                     <td style="color:#dc3545;font-weight:500">-${{ "%.2f"|format(expense.amount) }}</td>
                     <td>

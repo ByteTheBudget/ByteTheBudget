@@ -18,10 +18,12 @@ async def expenses_view(request: Request, user: AuthDep, db: SessionDep):
     category_service = CategoryService(CategoryRepository(db))
     expenses = expense_service.get_all_expenses(user.id)
     categories = category_service.get_all_categories()
+    categories = category_service.get_all_categories()
+    category_map = {cat.id: cat.name for cat in categories}
     return templates.TemplateResponse(
         request=request,
         name="expenses.html",
-        context={"user": user, "expenses": expenses, "categories": categories}
+        context={"user": user, "expenses": expenses, "categories": categories, "category_map": category_map,}
     )
 
 
