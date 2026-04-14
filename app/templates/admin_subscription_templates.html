@@ -31,7 +31,7 @@
             <tbody>
                 {% for t in templates_list %}
                 <tr>
-                    <td style="font-weight:500; color:#fff" >{{ t.name }}</td>
+                    <td style="font-weight:500; color:var(--text-primary)">{{ t.name }}</td>
                     <td style="color:var(--text-muted)">${{ "%.2f"|format(t.default_amount) }}</td>
                     <td style="color:var(--text-muted)">{{ t.billing_cycle|capitalize }}</td>
                     <td>
