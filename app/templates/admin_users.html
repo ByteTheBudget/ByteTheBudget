@@ -27,7 +27,7 @@
             <tbody>
                 {% for u in all_users %}
                 <tr>
-                    <td style="font-weight:500; color:#fff"">{{ u.username }}</td>
+                    <td style="font-weight:500; color:var(--text-primary)">{{ u.username }}</td>
                     <td style="color:var(--text-muted)">{{ u.email }}</td>
                     <td>
                         {% if u.role == "admin" %}

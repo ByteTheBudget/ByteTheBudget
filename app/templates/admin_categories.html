@@ -30,7 +30,7 @@
             <tbody>
                 {% for cat in categories %}
                 <tr>
-                    <td style="font-weight:500 ;color:#fff"" >{{ cat.name }}</td>
+                    <td style="font-weight:500; color:var(--text-primary)">{{ cat.name }}</td>
                     <td>
                         {% if cat.is_default %}
                         <span class="badge-role-user">Default</span>
