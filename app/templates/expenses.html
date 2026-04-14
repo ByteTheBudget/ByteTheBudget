@@ -177,5 +177,22 @@
         document.getElementById('editNotes').value = notes;
         new bootstrap.Modal(document.getElementById('editExpenseModal')).show();
     }
+
+    // category filter
+    document.getElementById('categoryFilter').addEventListener('change', function () {
+        const selected = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#expensesTable tbody tr');
+        rows.forEach(row => {
+            if (!selected) {
+                row.style.display = '';
+            } else {
+                const categoryCell = row.cells[1];
+                if (categoryCell) {
+                    const cellText = categoryCell.textContent.trim().toLowerCase();
+                    row.style.display = cellText === selected ? '' : 'none';
+                }
+            }
+        });
+    });
 </script>
 {% endblock %}
